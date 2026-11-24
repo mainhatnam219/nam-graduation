@@ -404,7 +404,7 @@ function renderGreeting(){
   const who = guest.name || "bạn";
   const team = guest.count>1;
   document.getElementById("greet").innerHTML = `Thân mời <b>${esc(guest.name?guest.name:"bạn")}</b>${team?` <span style="opacity:.8;font-size:.8em">(${guest.count} người)</span>`:""}`;
-  document.getElementById("myTime").innerHTML = guest.name ? `⏰ Giờ hẹn của ${esc(team?"cả team":who)}: <b>${guest.time}</b> · Thứ Năm 26/11` : `⏰ Giờ hẹn của bạn: <b>để ý thiệp của bạn nhé</b> 😉 · Thứ Năm 26/11`;
+  document.getElementById("myTime").innerHTML = guest.name ? `⏰ Nam hẹn ${esc(team?"cả team":who)} lúc <b>${guest.time}</b> · Thứ Năm 26/11` : `⏰ Giờ hẹn của bạn: <b>để ý thiệp của bạn nhé</b> 😉 · Thứ Năm 26/11`;
   document.getElementById("greetBody").innerHTML =
     `Nam đã đợi ngày này <b>rất rất rất lâu</b> rồi. `+
     `Để ${esc(who)} hổng phải lạc giữa sân trường rồi gọi điện “Nam ơi Nam đang ở đâu dzậy?”, Nam đã thu sẵn một đoạn <b>“nhạc”</b> cực cuốn ở bên dưới. `+
