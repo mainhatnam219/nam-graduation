@@ -387,6 +387,19 @@ const validTime = t => /^\d{1,2}:\d{2}$/.test(t||"") ? t.padStart(5,"0") : CFG.d
 
 let guest = {name:"", time:CFG.defaultTime, count:1};
 function findGuest(str){ const k=noPron(str); return GUESTS.find(g=>noPron(g.name)===k || g.id===k.replace(/ /g,"-")); }
+// Link động: #anh-minh-trí  → "anh Minh Trí" ; thêm giờ ở cuối: #anh-minh-trí-11h20 (hoặc -11:20)
+const PRON = ["anh","chị","chi","em","bạn","ban","cô","co","chú","chu","bác","bac","thầy","thay","a","c","e"];
+function guestFromSlug(slug){
+  let s = slug.replace(/[-_+.]+/g," ").replace(/\s+/g," ").trim();
+  let time = null;
+  const mt = s.match(/\s(\d{1,2})\s?[h:]\s?(\d{2})?$/i);
+  if(mt){ time = validTime(`${mt[1]}:${mt[2]||"00"}`); s = s.slice(0, mt.index).trim(); }
+  if(!s) return null;
+  const words = s.split(" ").map((w,i)=> i===0 && PRON.includes(w.toLowerCase()) ? w.toLowerCase() : cap(w));
+  const name = words.join(" ").slice(0,50);
+  const x = findGuest(name);
+  return {name: x && !PRON.includes(words[0]) ? x.name : name, time: time || (x?x.time:CFG.defaultTime), count: x?x.count:1};
+}
 function resolveGuest(){
   let g = null;
   let q = null; try{ q = new URLSearchParams(location.search).get("guest"); }catch(e){}
@@ -397,6 +410,7 @@ function resolveGuest(){
   if(mHex){ const [n,t,c] = fromHex(mHex[1]).split("|"); g = {name:(n||"").slice(0,50), time:validTime(t), count:parseInt(c)||1}; }
   else if(GUESTS.find(x=>x.id===hh)){ const x=GUESTS.find(x=>x.id===hh); g={...x}; }
   else if(q){ const x=findGuest(q); g = {name:q.trim().slice(0,50), time:x?x.time:CFG.defaultTime, count:x?x.count:1}; }
+  else if(hh && hh!=="tao-thiep"){ g = guestFromSlug(hh); }
   guest = g || {name:"", time:CFG.defaultTime, count:1};
   renderGreeting(); applyTime();
 }
