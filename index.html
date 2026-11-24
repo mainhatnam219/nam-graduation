@@ -390,10 +390,12 @@ function findGuest(str){ const k=noPron(str); return GUESTS.find(g=>noPron(g.nam
 // Link động: #anh-minh-trí  → "anh Minh Trí" ; thêm giờ ở cuối: #anh-minh-trí-11h20 (hoặc -11:20)
 const PRON = ["anh","chị","chi","em","bạn","ban","cô","co","chú","chu","bác","bac","thầy","thay","a","c","e"];
 function guestFromSlug(slug){
-  let s = slug.replace(/[-_+.]+/g," ").replace(/\s+/g," ").trim();
   let time = null;
-  const mt = s.match(/\s(\d{1,2})\s?[h:]\s?(\d{2})?$/i);
-  if(mt){ time = validTime(`${mt[1]}:${mt[2]||"00"}`); s = s.slice(0, mt.index).trim(); }
+  const mp = slug.match(/[&?](?:gio|giờ|time)=(\d{1,2})[h:]?(\d{2})?/i);
+  if(mp){ time = validTime(`${mp[1]}:${mp[2]||"00"}`); slug = slug.slice(0, mp.index); }
+  let s = slug.replace(/[-_+.@]+/g," ").replace(/\s+/g," ").trim();
+  const mt = (" "+s).match(/\s(?:lúc\s|luc\s)?(\d{1,2})\s?[h:]\s?(\d{2})?$/i);
+  if(mt){ time = validTime(`${mt[1]}:${mt[2]||"00"}`); s = (" "+s).slice(0, mt.index).trim(); }
   if(!s) return null;
   const words = s.split(" ").map((w,i)=> i===0 && PRON.includes(w.toLowerCase()) ? w.toLowerCase() : cap(w));
   const name = words.join(" ").slice(0,50);
@@ -411,6 +413,8 @@ function resolveGuest(){
   else if(GUESTS.find(x=>x.id===hh)){ const x=GUESTS.find(x=>x.id===hh); g={...x}; }
   else if(q){ const x=findGuest(q); g = {name:q.trim().slice(0,50), time:x?x.time:CFG.defaultTime, count:x?x.count:1}; }
   else if(hh && hh!=="tao-thiep"){ g = guestFromSlug(hh); }
+  let qt = null; try{ const sp=new URLSearchParams(location.search); qt = sp.get("gio")||sp.get("time"); }catch(e){}
+  if(g && qt){ g = {...g, time: validTime(qt.replace(/h/i,":").replace(/:$/,":00"))}; }
   guest = g || {name:"", time:CFG.defaultTime, count:1};
   renderGreeting(); applyTime();
 }
